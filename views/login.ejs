@@ -1,0 +1,100 @@
+<%- include('header') %>
+<script src="../public/js/front.js">
+
+</script>
+<script>
+    // JavaScript későbbi fejlesztéshez
+    function showDescription(description) {
+        alert(description);
+    }
+
+    document.addEventListener()
+
+</script>
+<div>
+    <% if (registered) { %>
+        <h1 id="successMessage" style="font-size: 24px; color: green" class="success-message">Sikeres regisztráció!</h1>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                setTimeout(function () {
+                    var successMessage = document.getElementById('successMessage');
+                    if (successMessage) {
+                        successMessage.style.display = 'none';
+                    }
+                }, 5000);
+            });
+        </script>
+    <% } else if(unRegistered){ %>
+        <h1 id="unSuccessMessage" style="font-size: 24px; color: red" class="un-success-message">Sikertelen
+            regisztráció!</h1>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                setTimeout(function () {
+                    var unSuccessMessage = document.getElementById('unSuccessMessage');
+                    if (unSuccessMessage) {
+                        unSuccessMessage.style.display = 'none';
+                    }
+                }, 5000);
+            });
+        </script>
+    <% } %>
+
+</div>
+<div class="middle">
+<div class="form-container">
+    <div class="form-container">
+        <form class="login-container" action="/login" method="post" id="form1">
+            <h1>Bejelentkezés</h1>
+            <br>
+            <input type="text" class="input" id="email" name="email" placeholder="Email vagy felhasználónév"
+                   required><br><br>
+            <input type="password" class="input" id="password" name="password" placeholder="Jelszó" required>
+            <!--  <input type="hidden" id="user" name="user"> -->
+            <br><br>
+            <button class="registration-button" >Bejelentkezés</button>
+            <br><br>
+        </form>
+    </div>
+    <div class="sign-in-container">
+        <form class="register-container" action="/register" method="post">
+            <h1>Regisztráció</h1>
+            <br>
+            <input type="text" class="input" id="reg_name" name="reg_name" placeholder="Teljes név"
+                   required><br><br>
+            <input type="email" class="input" id="reg_email" name="reg_email" placeholder="Email" required><br><br>
+            <input type="password" class="input" id="reg_password" name="reg_password" placeholder="Jelszó"
+                   required><br><br>
+            <input type="password" class="input" id="reg_password_repeat" name="reg_password_repeat"
+                   placeholder="Jelszó újra" required><br>
+            <br>
+            <button class="registration-button">Regisztráció</button>
+        </form>
+    </div>
+</div>
+</div>
+<style>
+    input{
+        border-radius: 2px;
+        height: 3vh;
+        width: 20vh;
+        }
+    button{
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+    }
+    .middle {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+<script src="index.js"></script>
+<%- include('footer') %>

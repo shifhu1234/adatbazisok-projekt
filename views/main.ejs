@@ -1,0 +1,370 @@
+<%- include('header') %>
+<%- include('main-style') %>
+<% if (fromLogoutButton) { %>
+    <h1 id="successMessage" style="margin-left: 5vh; font-size: 24px; color: orangered" class="success-message">Sikeres
+        kijelentkezés!</h1>
+<% } %>
+<% if (user) { %>
+    <% if (sections.length > 0) { // ha van szekció   %>
+    <div class="section">
+        <div class="article clickable" onclick="toggleArticleForm()">Új cikk hozzáadása</div>
+        <div class="overlay" id="articleOverlay"></div>
+        <div class="article-popup" id="articleForm">
+            <form action="/submit-article" method="post" class="form-container">
+                <h1>Cikk hozzáadása</h1><br>
+                <input type="hidden" name="sectionId" value="no_section">
+                <input type="text" placeholder="Cím" name="articletitle" required>
+                <button type="submit" class="btn">Feltöltés</button>
+                <button type="button" class="btn cancel" onclick="toggleArticleForm()">Mégse</button>
+            </form>
+        </div>
+    </div>
+    <% } else { %>
+        <div class="section">
+            <div class="article" style="background-color: #ddd; cursor: not-allowed;">Új cikk hozzáadása</div>
+        </div>
+    <% } %>
+
+    <% if(user.role === 'admin'){ %>
+        <div class="section">
+            <div class="article clickable" onclick="toggleSectionForm()">Új szekció hozzáadása</div>
+            <div class="overlay" id="sectionOverlay"></div>
+            <div class="article-popup" id="sectionForm">
+                <form action="/submit-section" method="post" class="form-container">
+                    <h1>Szekció hozzáadása</h1>
+
+                    <input type="text" placeholder="Cím" name="sectiontitle" required>
+                    <button type="submit" class="btn">Feltöltés</button>
+                    <button type="button" class="btn cancel" onclick="toggleSectionForm()">Mégse</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="section">
+            <form action="/give-admin" method="post" class="form-container">
+                <button class="article clickable"
+                        style="font-family: 'Signika Negative Light'; font-weight: bold; font-size: 1.68vh" type="submit">
+                    Admin jogosultságok adása
+                </button>
+                <% if (user.role === 'admin') { %>
+                    <select id="maybeAdminUserId" name="maybeAdminUserId">
+                        <option value="Error_Article"></option>
+                        <% const noAdmin = users.filter(user => user.role !== 'admin'); %>
+                        <% noAdmin.forEach(user => { %>
+                            <option value="<%= user.name %>"><%= user.name %></option>
+                        <% }) %>
+                    </select>
+                <% } else { %>
+                    <select id="articleDetach" name="articleDetach">
+                        <option value="Error_Article"></option>
+                        <% const noUserDetachedArticles = userArticles.filter(userArticle => userArticle.section_id !== null); %>
+                        <% noUserDetachedArticles.forEach(userArticle => { %>
+                            <option value="<%= userArticle.title %>"><%= userArticle.title %></option>
+                        <% }) %>
+                    </select>
+                <% } %>
+            </form>
+        </div>
+
+    <% } %>
+
+    <br><br>
+
+    <div class="section">
+        <form action="/modify-section-remove-articles" method="post" class="form-container">
+            <button class="article clickable"
+                    style="font-family: 'Signika Negative Light'; font-weight: bold; font-size: 1.68vh" type="submit">
+                Cikk leválasztása
+            </button>
+
+            <% if (user.role === 'admin') { %>
+                <select id="articleDetach" name="articleDetach">
+                    <option value="Error_Article"></option>
+                    <% const noDetachedArticles = articles.filter(article => article.section_id !== null); %>
+                    <% noDetachedArticles.forEach(article => { %>
+                        <option value="<%= article.title %>"><%= article.title %></option>
+                    <% }) %>
+                </select>
+            <% } else { %>
+                <select id="articleDetach" name="articleDetach">
+                    <option value="Error_Article"></option>
+                    <% const noUserDetachedArticles = userArticles.filter(userArticle => userArticle.section_id !== null); %>
+                    <% noUserDetachedArticles.forEach(userArticle => { %>
+                        <option value="<%= userArticle.title %>"><%= userArticle.title %></option>
+                    <% }) %>
+                </select>
+            <% } %>
+        </form>
+    </div>
+
+    <br><br>
+    <div class="section">
+
+        <form action="/modify-section-delete-articles" method="post" class="form-container">
+            <button class="article clickable"
+                    style="font-family: 'Signika Negative Light'; font-weight: bold; font-size: 1.68vh" type="submit">
+                Cikk lemondása <em>(törlése)</em></button>
+
+            <% if(user.role === 'admin'){ %>
+
+                <select id="articleDelete" name="articleDelete">
+                    <option value="Error_Article"></option>
+                    <% allArticles.forEach(allArticle => { %>
+                        <option value="<%= allArticle.title %>"><%= allArticle.title %></option>
+                    <% }) %>
+
+                </select>
+            <% }else{ %>
+                <select id="articleDelete" name="articleDelete">
+                    <option value="Error_Article"></option>
+                    <% userArticles.forEach(userArticle => { %>
+                        <option value="<%= userArticle.title %>"><%= userArticle.title %></option>
+                    <% }) %>
+
+                </select>
+
+            <% } %>
+        </form>
+    </div>
+    <% if(user.role === 'admin'){ %>
+        <div class="section">
+            <form action="/modify-section-delete-section" method="post" class="form-container">
+                <button class="article clickable"
+                        style="font-family: 'Signika Negative Light'; font-weight: bold; font-size: 1.68vh"
+                        type="submit"> Szekció lemondása <em>(törlése)</em></button>
+                <select id="sectionDelete" name="sectionDelete">
+                    <option value="Error_Section"></option>
+                    <% sections.forEach(section => { %>
+                        <% const sectionArticles = articles.filter(article => article.section_id === section.id); %>
+                        <option value="<%= section.id %>"><%= section.section_name %><%= sectionArticles.length === 0 ? ' (üres)' : '' %></option>
+                    <% }) %>
+                </select>
+            </form>
+        </div>
+
+    <% } %>
+
+<% } else { %>
+    <% if (sections.length == 0) { %>
+        <div class="section" style="position: fixed; left: 50%; transform: translate(-50%, -50%); font-size: 3vh">
+            Jelenleg üres a programterv.
+        </div>
+    <% } %>
+<% } %>
+<br><br>
+
+
+<% if (user) { %>
+    <br>
+    <form action="/modify-article" method="post">
+
+
+        <h2>Kategorizálatlan cikkjeid</h2>
+
+        <div class="section article-grid">
+            <% notCategorizedUserArticles.forEach(notCategorizedUserArticle =>{ %>
+                <div class="article aarticle">
+                    Cím:&nbsp<p id=""><%= notCategorizedUserArticle.title %> <em>(Kategorizálatlan)</em></p>
+                    <input type="hidden" name="sectionId" value="<%= notCategorizedUserArticle.id %>">
+                    <label for="conductor"></label>
+
+                </div>
+            <% }) %>
+
+        </div>
+        <br>
+        <% if(user.role === 'admin'){ %>
+            <h2>Összes kategorizálatlan cikk</h2>
+        <div class="section article-grid">
+            <% nosectionarticles.forEach(article => { %>
+                <div class="article aarticle">
+                    Cím:&nbsp<p id="modifyarticle"><%= article.title %> <em>(Kategorizálatlan)</em></p>
+                    <input type="hidden" name="sectionId" value="<%= article.id %>">
+                    <label for="conductor"></label>
+
+                </div>
+            <% })} %>
+
+        </div>
+
+    </form>
+<% } %>
+
+
+<div class="table-container sections-container">
+    <% sections.forEach(section => { %>
+
+        <table class="section-table">
+            <thead>
+            <tr>
+                <td class="sectionListing" style="text-align: center; height: 100%;">
+
+                    <div class="article">
+
+                        <h2> <%= section.section_name %>
+                        </h2>
+                        <br>
+                        <% if (user && user.role === 'admin') { %>
+                            <form action="/modify-section-articles" method="post" class="form-container">
+                                <label for="conductor">Cikk hozzáadása:</label>
+                                <br>
+                                <select id="articleAdd" name="articleAdd">
+                                    <option value="Error_Article"></option>
+                                    <% nosectionarticles.forEach(article => { %>
+                                        <option value="<%= article.title %>"><%= article.title %> ()</option>
+                                    <% }) %>
+                                    <% articles.forEach(article => { %>
+                                        <option value="<%= article.title %>"><%= article.title %></option>
+                                    <% }) %>
+                                </select>
+                                <input type="hidden" name="sectionId" value="<%= section.id %>"><input type="hidden"
+                                                                                                       name="sectionName"
+                                                                                                       value="<%= section.section_name %>">
+
+                                <button type="submit" class="">Módosítás</button>
+                            </form>
+                            <form action="/modify-section-date" method="post" class="form-container">
+                                <label for="startDateTime">Kezdési időpont:</label>
+                                <input type="datetime-local" id="startDateTime" name="startDateTime">
+                                <input type="hidden" name="sectionId" value="<%= section.id %>">
+                                <button type="submit" class="">Módosítás</button>
+                            </form>
+                            <form action="/modify-section-user" method="post" class="form-container">
+                                <label for="conductor">Levezető:</label>
+                                <br>
+                                <select id="conductor" name="conductor">
+                                    <option value=""></option>
+                                    <% users.forEach(user => { %>
+                                        <option value="<%= user.id %>"><%= user.name %></option>
+                                    <% }) %>
+                                </select>
+                                <input type="hidden" name="sectionId" value="<%= section.id %>">
+
+                                <button type="submit" class="">Módosítás</button>
+                            </form>
+
+                        <% } %>
+                        Kezdési időpont:
+                        <% if (section.section_starting_time) { %>
+                            <%= section.section_starting_time.toLocaleString('hu-HU', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: false
+                            }) %>
+                        <% }else{ %>
+                            <em>Ismeretlen</em>
+                        <% } %>
+                        <br>
+
+                        Levezető elnök:
+                        <% if (section) { %>
+                            <% const matchingUser = users.find(user => user.id === section.users_id); %>
+                            <% if (matchingUser) { %>
+                                <%= matchingUser.name %>
+                            <% } else { %>
+                                <em>Ismeretlen</em>
+                            <% } %>
+                        <% } else { %>
+                            <em>Ismeretlen</em>
+                        <% } %>
+                    </div>
+                    <br>
+
+                </td>
+
+            </tr>
+            </thead>
+
+            <tbody>
+            <% const matchingArticles = articles.filter(article => article.section_id === section.id); %>
+            <% if(matchingArticles.length > 0){ %>
+                <tr>
+                    <td>
+                        <div><h3>Cikkek: </h3></div>
+                    </td>
+                </tr>
+            <% }else{ %>
+                <tr>
+                    <td>
+                        <div><h3>Ebben a szekcióban még nem szerepelnek cikkek.</h3></div>
+                    </td>
+                </tr>
+            <% } %>
+            <td style="display: flex; flex-wrap: wrap;">
+                <% const matchingConferenceEntries = conference.filter(conf => conference.article_id === articlesForLength.id); %>
+                <% matchingArticles.forEach(article => { %>
+                    <form action="/modify-conference-length" method="post">
+                        <td class="article" onclick="">
+                            <h3>
+                                <%= article.title %>
+                            </h3>
+                            <% if (user && user.role === 'admin'){ %>
+
+                                Hossz:
+                                <select name="articleLength">
+                                    <option value="noTime"></option>
+                                    <option value="20">20 perc (normál)</option>
+                                    <option value="45">45 perc (plenáris)</option>
+                                </select>
+                                <input type="hidden" name="articleTitle" value="<%= article.title %>">
+                                <input type="hidden" name="sectionId" value="<%= section.id %>">
+                                <button type="submit" class="">Módosítás</button>
+                    </form>
+                    <form action="/modify-conference-date" method="post" class="">
+                        <label for="startDateTime">Kezdési időpont:</label>
+                        <input type="datetime-local" id="startDateTime" name="startDateTime">
+                        <input type="hidden" name="sectionId" value="<%= section.id %>">
+                        <input type="hidden" name="articleTitle" value="<%= article.title %>">
+
+                        <button type="submit" class="">Módosítás</button>
+                    </form>
+                    <% } %>
+                <% }) %>
+            </td>
+            </td>
+            </tbody>
+        </table>
+    <% }) %>
+</div>
+
+
+<style>
+    .article-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1vh;
+    }
+
+    .aarticle {
+        display: inline-flex;
+        margin-right: 1vh;
+    }
+
+    .table-container {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 16px;
+    }
+
+    .section-table {
+        width: 100%;
+        border: 1px solid black;
+        padding: 8px;
+    }
+
+    .sectionListing {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sections-container {
+        justify-content: space-between;
+        align-items: flex-start; /* tetejen kezdodo cikkek*/
+    }
+
+</style>
+</body>
+</html>

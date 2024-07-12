@@ -1,5 +1,7 @@
 # adatbazisok-projekt
 
+DAO EGYELŐRE HIÁYNZIK!
+
 Telepítsd a XAMPP nevű alkalmazást.
 
 XAMPP telepítése után indítsd el a MySQL szolgáltatást.

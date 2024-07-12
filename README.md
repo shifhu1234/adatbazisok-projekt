@@ -1,6 +1,6 @@
 # adatbazisok-projekt
 
-DAO EGYELŐRE HIÁYNZIK!
+- DAO EGYELŐRE HIÁNYZIK!
 
 Telepítsd a XAMPP nevű alkalmazást.
 
